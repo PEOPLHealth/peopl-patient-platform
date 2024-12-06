@@ -6,3 +6,5 @@ airtable-python-wrapper
 plotly.express
 babel
 locale
+locales
+locales-all
