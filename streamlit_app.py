@@ -4,7 +4,6 @@ import streamlit as st
 import pandas as pd
 import requests
 import plotly.graph_objects as go
-import locale
 
 # Configuración de la página
 st.set_page_config(
