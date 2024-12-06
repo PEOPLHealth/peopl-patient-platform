@@ -4,5 +4,3 @@ python-dotenv
 airtable-python-wrapper
 plotly.express
 babel
-locales
-locales-all
