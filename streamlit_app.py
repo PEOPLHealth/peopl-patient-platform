@@ -4,6 +4,9 @@ import streamlit as st
 import pandas as pd
 import requests
 import plotly.graph_objects as go
+import locale  # Add this import at the top of your file
+
+locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')  # Set locale to Spanish
 
 # Configuración de la página
 st.set_page_config(
@@ -114,17 +117,6 @@ else:
                 ]
 
             nutri_filtered_data['last_modified_general_indications'] = pd.to_datetime(nutri_filtered_data['last_modified_general_indications']).dt.strftime('%d-%b-%Y')
-            
-            #nd = pd.DataFrame(
-            #    nutri_filtered_data,
-            #    column_config = {
-            #            "last_modified_general_indications": "Fecha de cita",
-            #            "general_indications": "Indicaciones de la cita"
-            #        }, 
-            #    use_container_width=True,
-            #    hide_index=True
-            #    )
-
 
             nutri_filtered_data.columns = ['Fecha', 'Indicaciones']  # Change to your desired names 
             nutri_filtered_data['Indicaciones'] = nutri_filtered_data['Indicaciones'].str.replace('\n', '<br>', regex=False)
@@ -132,7 +124,7 @@ else:
 
             # Reset the index to avoid displaying it
             st.markdown(nutri_table, unsafe_allow_html=True)
-        
+            
 
 
             st.write('Resumen de cita')
@@ -146,15 +138,14 @@ else:
 
             nutri_filtered_data_calendar['Start'] = pd.to_datetime(nutri_filtered_data_calendar['Start']).dt.date
             
-            st.dataframe(
-                nutri_filtered_data_calendar,
-                column_config = {
-                        "Start": "Fecha de cita",
-                        "recommendations": "Resumen de la cita"
-                    }, 
-                use_container_width=True,
-                hide_index=True
-                )
+            nutri_filtered_data_calendar['Start'] = pd.to_datetime(nutri_filtered_data_calendar['Start']).dt.strftime('%d-%b-%Y')
+
+            nutri_filtered_data_calendar.columns = ['Fecha', 'Resumen de cita']  # Change to your desired names 
+            nutri_filtered_data_calendar['Resumen de cita'] = nutri_filtered_data_calendar['Resumen de cita'].str.replace('\n', '<br>', regex=False)
+            nutri_table_cal = nutri_filtered_data_calendar.to_html(escape=False, index=False)
+
+            # Reset the index to avoid displaying it
+            st.markdown(nutri_table_cal, unsafe_allow_html=True)
 
         with tab2:
             st.write("Indicaciones")
