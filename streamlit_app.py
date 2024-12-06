@@ -70,7 +70,7 @@ data_calendar['specialties_str']=data_calendar['specialty_id'].apply(lambda x: s
 params = st.query_params
 record_id = params.get('recordID', [None])  # Obtiene el recordID desde la URL
 
-#record_id = "recWu820ocWN0ylPN"
+# record_id = "recWu820ocWN0ylPN"
 
 # Validar si hay datos disponibles
 if data_monitoreo.empty:
@@ -113,7 +113,7 @@ else:
                     (nutri_filtered_data['general_indications'] != '') & (nutri_filtered_data['general_indications'].notna())
                 ]
 
-            nutri_filtered_data['last_modified_general_indications'] = pd.to_datetime(nutri_filtered_data['last_modified_general_indications']).dt.date
+            nutri_filtered_data['last_modified_general_indications'] = pd.to_datetime(nutri_filtered_data['last_modified_general_indications']).dt.strftime('%d-%b-%Y')
             
             #nd = pd.DataFrame(
             #    nutri_filtered_data,
@@ -124,8 +124,17 @@ else:
             #    use_container_width=True,
             #    hide_index=True
             #    )
+
+
+            nutri_filtered_data.columns = ['Fecha', 'Indicaciones']  # Change to your desired names 
+            nutri_filtered_data['Indicaciones'] = nutri_filtered_data['Indicaciones'].str.replace('\n', '<br>', regex=False)
+            nutri_table = nutri_filtered_data.to_html(escape=False, index=False)
+
+            # Reset the index to avoid displaying it
+            st.markdown(nutri_table, unsafe_allow_html=True)
+            
             st.table(
-                nutri_filtered_data
+                nutri_table
                 )
 
 
