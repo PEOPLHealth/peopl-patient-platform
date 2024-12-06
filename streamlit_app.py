@@ -70,7 +70,7 @@ data_calendar['specialties_str']=data_calendar['specialty_id'].apply(lambda x: s
 params = st.query_params
 record_id = params.get('recordID', [None])  # Obtiene el recordID desde la URL
 
-# record_id = "recWu820ocWN0ylPN"
+#record_id = "recWu820ocWN0ylPN"
 
 # Validar si hay datos disponibles
 if data_monitoreo.empty:
@@ -115,14 +115,17 @@ else:
 
             nutri_filtered_data['last_modified_general_indications'] = pd.to_datetime(nutri_filtered_data['last_modified_general_indications']).dt.date
             
-            st.dataframe(
-                nutri_filtered_data,
-                column_config = {
-                        "last_modified_general_indications": "Fecha de cita",
-                        "general_indications": "Indicaciones de la cita"
-                    }, 
-                use_container_width=True,
-                hide_index=True
+            #nd = pd.DataFrame(
+            #    nutri_filtered_data,
+            #    column_config = {
+            #            "last_modified_general_indications": "Fecha de cita",
+            #            "general_indications": "Indicaciones de la cita"
+            #        }, 
+            #    use_container_width=True,
+            #    hide_index=True
+            #    )
+            st.table(
+                nutri_filtered_data
                 )
 
 
