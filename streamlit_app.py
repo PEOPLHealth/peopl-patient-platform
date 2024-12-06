@@ -4,13 +4,7 @@ import streamlit as st
 import pandas as pd
 import requests
 import plotly.graph_objects as go
-import locale  # Add this import at the top of your file
-
-try:
-    locale.setlocale(locale.LC_TIME, 'es_ES')  # Set locale to Spanish
-except locale.Error as e:
-    print(f"Locale error: {e}. Falling back to default locale.")
-    locale.setlocale(locale.LC_TIME, '')
+import locale
 
 # Configuración de la página
 st.set_page_config(
