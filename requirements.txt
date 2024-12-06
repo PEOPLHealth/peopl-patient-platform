@@ -4,4 +4,4 @@ pandas
 python-dotenv
 airtable-python-wrapper
 plotly.express
-locale
+babel
