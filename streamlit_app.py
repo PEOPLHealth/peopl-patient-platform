@@ -6,7 +6,11 @@ import requests
 import plotly.graph_objects as go
 import locale  # Add this import at the top of your file
 
-locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')  # Set locale to Spanish
+try:
+    locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')  # Set locale to Spanish
+except locale.Error as e:
+    print(f"Locale error: {e}. Falling back to default locale.")
+    locale.setlocale(locale.LC_TIME, '')
 
 # Configuración de la página
 st.set_page_config(
