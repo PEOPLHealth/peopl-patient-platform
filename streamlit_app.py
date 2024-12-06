@@ -132,10 +132,7 @@ else:
 
             # Reset the index to avoid displaying it
             st.markdown(nutri_table, unsafe_allow_html=True)
-            
-            st.table(
-                nutri_table
-                )
+        
 
 
             st.write('Resumen de cita')
