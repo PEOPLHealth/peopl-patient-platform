@@ -4,6 +4,9 @@ import streamlit as st
 import pandas as pd
 import requests
 import plotly.graph_objects as go
+import locale  # Add this import at the top of your file
+
+locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')  # Set locale to Spanish
 
 # Configuración de la página
 st.set_page_config(
@@ -62,6 +65,8 @@ data_recording = load_data(BASE_ID_CALENDAR,TABLE_NAME_RECORDINGS,view="Yoga&Med
 
 data_monitoreo['recordID_str']=data_monitoreo['patient'].apply(lambda x: str(x[0]) if isinstance(x, list) and len(x) > 0 else str(x))
 data_monitoreo['specialties_str']=data_monitoreo['specialties'].apply(lambda x: str(x[0]) if isinstance(x, list) and len(x) > 0 else str(x))
+data_monitoreo['full_prescription']=data_monitoreo['full_prescription (from prescriptions)'].apply(lambda x: str(x[0]) if isinstance(x, list) and len(x) > 0 else str(x))
+
 
 data_calendar['recordID_str']=data_calendar['recordID_patient'].apply(lambda x: str(x[0]) if isinstance(x, list) and len(x) > 0 else str(x))
 data_calendar['specialties_str']=data_calendar['specialty_id'].apply(lambda x: str(x[0]) if isinstance(x, list) and len(x) > 0 else str(x))
@@ -70,7 +75,7 @@ data_calendar['specialties_str']=data_calendar['specialty_id'].apply(lambda x: s
 params = st.query_params
 record_id = params.get('recordID', [None])  # Obtiene el recordID desde la URL
 
-# record_id = "recWu820ocWN0ylPN"
+#record_id = "recjWwhBSgkzXmZo0"
 
 # Validar si hay datos disponibles
 if data_monitoreo.empty:
@@ -79,7 +84,7 @@ else:
     # Filtrar datos del paciente seleccionado
     patient_data = data_monitoreo[data_monitoreo['recordID_str'] == record_id]
     patient_data_calendar = data_calendar[data_calendar['recordID_str'] == record_id]
-    st.dataframe(patient_data_calendar)
+    #st.dataframe(patient_data_calendar)
 
     recording_calendar_meditacion = data_recording[data_recording['Title'] == '[PEOPL] – Taller de meditación']
     recording_calendar_yoga = data_recording[data_recording['Title'] == '[PEOPL] -Taller de yoga']
@@ -89,7 +94,7 @@ else:
     st.title("🏥 PEOPL")
     st.write(f"Bienvenid@ {name[0]} a tu plataforma de seguimiento.")
 
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(["Nutrición", "Rehabilitación", "Medicina Paliativa", "Psicooncología", "🎥 Grabación de talleres"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["🎥 Grabación de talleres","🥙 Nutrición", "Rehabilitación", "Medicina Paliativa", "Psicooncología"])
 
     nutri_record_id = 'rec9nx9loAzt8nWgn'
     rehab_record_id = 'recT9fqaCSFmAdYQZ'
@@ -104,93 +109,205 @@ else:
     if patient_data.empty:
         st.warning("No se encontraron registros para este paciente.")
     else:
-        with tab1:
-            st.write("Indicaciones")
-            patient_nutri_data = patient_data[patient_data['specialties_str']==nutri_record_id]
-            selected_nutri_columns = ['last_modified_general_indications','general_indications']
-            nutri_filtered_data = patient_nutri_data[selected_nutri_columns]
-            nutri_filtered_data = nutri_filtered_data[
-                    (nutri_filtered_data['general_indications'] != '') & (nutri_filtered_data['general_indications'].notna())
-                ]
-
-            nutri_filtered_data['last_modified_general_indications'] = pd.to_datetime(nutri_filtered_data['last_modified_general_indications']).dt.strftime('%d-%b-%Y')
-
-            nutri_filtered_data.columns = ['Fecha', 'Indicaciones']  # Change to your desired names 
-            nutri_filtered_data['Indicaciones'] = nutri_filtered_data['Indicaciones'].str.replace('\n', '<br>', regex=False)
-            nutri_table = nutri_filtered_data.to_html(escape=False, index=False)
-
-            # Reset the index to avoid displaying it
-            st.markdown(nutri_table, unsafe_allow_html=True)
-            
-
-
-            st.write('Resumen de cita')
-            # patient_nutri_data_calendar = patient_data_calendar[patient_data_calendar['specialties_str']]
-            patient_nutri_data_calendar = patient_data_calendar[patient_data_calendar['specialties_str']==nutri_record_id_calendar]
-            selected_nutri_columns = ['Start','recommendations']
-            nutri_filtered_data_calendar = patient_nutri_data_calendar[selected_nutri_columns]
-            nutri_filtered_data_calendar = nutri_filtered_data_calendar[
-                    (nutri_filtered_data_calendar['recommendations'] != '') & (nutri_filtered_data_calendar['recommendations'].notna())
-                ]
-
-            nutri_filtered_data_calendar['Start'] = pd.to_datetime(nutri_filtered_data_calendar['Start']).dt.date
-            
-            nutri_filtered_data_calendar['Start'] = pd.to_datetime(nutri_filtered_data_calendar['Start']).dt.strftime('%d-%b-%Y')
-
-            nutri_filtered_data_calendar.columns = ['Fecha', 'Resumen de cita']  # Change to your desired names 
-            nutri_filtered_data_calendar['Resumen de cita'] = nutri_filtered_data_calendar['Resumen de cita'].str.replace('\n', '<br>', regex=False)
-            nutri_table_cal = nutri_filtered_data_calendar.to_html(escape=False, index=False)
-
-            # Reset the index to avoid displaying it
-            st.markdown(nutri_table_cal, unsafe_allow_html=True)
-
         with tab2:
-            st.write("Indicaciones")
-            patient_rehab_data = patient_data[patient_data['specialties_str']==rehab_record_id]
-            selected_rehab_columns = ['last_modified_general_indications','general_indications']
-            rehab_filtered_data = patient_rehab_data[selected_rehab_columns]
-            rehab_filtered_data = rehab_filtered_data[
-                    (rehab_filtered_data['general_indications'] != '') & (rehab_filtered_data['general_indications'].notna())
-                ]
 
-            rehab_filtered_data['last_modified_general_indications'] = pd.to_datetime(rehab_filtered_data['last_modified_general_indications']).dt.date
+            nu_tab1, nu_tab2, nutab3 = st.tabs(["🩺 Indicaciones", "📝 Resumen de la cita", "📄 Documentos"])
             
-            st.dataframe(
-                rehab_filtered_data,
-                column_config = {
-                        "last_modified_general_indications": "Fecha de cita",
-                        "general_indications": "Resumen de la cita"
-                    },
-                use_container_width=True,
-                hide_index=True
-            )
+            patient_nutri_data = patient_data[patient_data['specialties_str']==nutri_record_id]
 
-
-            st.write('Resumen de cita')
-            # patient_nutri_data_calendar = patient_data_calendar[patient_data_calendar['specialties_str']]
-            patient_rehab_data_calendar = patient_data_calendar[patient_data_calendar['specialties_str']==rehab_record_id_calendar]
-            selected_rehab_columns = ['Start','recommendations']
-            rehab_filtered_data_calendar = patient_rehab_data_calendar[selected_rehab_columns]
-            rehab_filtered_data_calendar = rehab_filtered_data_calendar[
-                    (rehab_filtered_data_calendar['recommendations'] != '') & (rehab_filtered_data_calendar['recommendations'].notna())
-                ]
-
-            rehab_filtered_data_calendar['Start'] = pd.to_datetime(rehab_filtered_data_calendar['Start']).dt.date
             
-            st.dataframe(
-                rehab_filtered_data_calendar,
-                column_config = {
-                        "Start": "Fecha de cita",
-                        "recommendations": "Resumen de la cita"
-                    },
-                use_container_width=True,
-                hide_index=True
-            )
+            with nu_tab1:
+
+                selected_nutri_columns_ind = ['last_modified_general_indications','general_indications']
+                nutri_filtered_data_ind = patient_nutri_data[selected_nutri_columns_ind]
+
+                nutri_filtered_data_ind = nutri_filtered_data_ind[
+                        (nutri_filtered_data_ind['general_indications'] != '') & (nutri_filtered_data_ind['general_indications'].notna())
+                    ]
+
+                nutri_filtered_data_ind['last_modified_general_indications'] = pd.to_datetime(nutri_filtered_data_ind['last_modified_general_indications']).dt.strftime('%d-%b-%Y')
+
+                nutri_filtered_data_ind.columns = ['Fecha', 'Indicaciones']  # Change to your desired names 
+                nutri_filtered_data_ind['Indicaciones'] = nutri_filtered_data_ind['Indicaciones'].str.replace('\n', '<br>', regex=False)
+                nutri_table = nutri_filtered_data_ind.to_html(escape=False, index=False)
+
+                # Reset the index to avoid displaying it
+                st.markdown(nutri_table, unsafe_allow_html=True)
+                
+            with nu_tab2:
+
+                # patient_nutri_data_calendar = patient_data_calendar[patient_data_calendar['specialties_str']]
+                patient_nutri_data_calendar = patient_data_calendar[patient_data_calendar['specialties_str']==nutri_record_id_calendar]
+                selected_nutri_columns = ['Start','recommendations']
+                nutri_filtered_data_calendar = patient_nutri_data_calendar[selected_nutri_columns]
+                nutri_filtered_data_calendar = nutri_filtered_data_calendar[
+                        (nutri_filtered_data_calendar['recommendations'] != '') & (nutri_filtered_data_calendar['recommendations'].notna())
+                    ]
+
+                nutri_filtered_data_calendar['Start'] = pd.to_datetime(nutri_filtered_data_calendar['Start']).dt.date
+                
+                nutri_filtered_data_calendar['Start'] = pd.to_datetime(nutri_filtered_data_calendar['Start']).dt.strftime('%d-%b-%Y')
+
+                nutri_filtered_data_calendar.columns = ['Fecha', 'Resumen de cita']  # Change to your desired names 
+                nutri_filtered_data_calendar['Resumen de cita'] = nutri_filtered_data_calendar['Resumen de cita'].str.replace('\n', '<br>', regex=False)
+                nutri_table_cal = nutri_filtered_data_calendar.to_html(escape=False, index=False)
+
+                # Reset the index to avoid displaying it
+                st.markdown(nutri_table_cal, unsafe_allow_html=True)
+            
+            with nutab3:
+
+                selected_nutri_columns_file = ['manual_name','file_nutri_manuals']
+                nutri_filtered_data_file = patient_nutri_data[selected_nutri_columns_file]
+
+                nutri_filtered_data_file = nutri_filtered_data_file[
+                        (nutri_filtered_data_file['file_nutri_manuals'] != '') & (nutri_filtered_data_file['file_nutri_manuals'].notna())
+                    ]
+                
+                # Display files in Streamlit
+                if not nutri_filtered_data_file.empty:
+                    st.write("Archivos disponibles:")
+                    for index, row in nutri_filtered_data_file.iterrows():
+                        file_names = row['manual_name']  # Split the names
+                        file_urls = row['file_nutri_manuals']  # Directly access the file URL
+                        if isinstance(file_urls, list):  # Check if file_urls is a list
+                            for file_name, file_url in zip(file_names, file_urls):
+                                if file_url:  # Check if the URL is not empty
+                                    st.markdown(f"[Descargar archivo: {file_name.strip()}]({file_url['url']})")  # Create a clickable link
+                        else:
+                            if file_urls:  # Check if the URL is not empty
+                                st.markdown(f"[Descargar archivo: {file_names[0].strip()}]({file_urls['url']})")  
+
 
         with tab3:
-            st.write("Contenido de Progreso General")
 
-        with tab5:
+            rehab_tab1, rehab_tab2, rehab_tab3 = st.tabs(["🩺 Indicaciones", "📝 Resumen de la cita", "📄 Documentos"])
+            patient_rehab_data = patient_data[patient_data['specialties_str']==rehab_record_id]
+
+            with rehab_tab1:
+                selected_rehab_columns = ['last_modified_general_indications','general_indications']
+                rehab_filtered_data = patient_rehab_data[selected_rehab_columns]
+
+                rehab_filtered_data = rehab_filtered_data[
+                        (rehab_filtered_data['general_indications'] != '') & (rehab_filtered_data['general_indications'].notna())
+                    ]
+
+                rehab_filtered_data['last_modified_general_indications'] = pd.to_datetime(rehab_filtered_data['last_modified_general_indications']).dt.strftime('%d-%b-%Y')
+                
+
+                rehab_filtered_data.columns = ['Fecha', 'Indicaciones']  # Change to your desired names 
+                rehab_filtered_data['Indicaciones'] = rehab_filtered_data['Indicaciones'].str.replace('\n', '<br>', regex=False)
+                rehab_table = rehab_filtered_data.to_html(escape=False, index=False)
+
+                # Reset the index to avoid displaying it
+                st.markdown(rehab_table, unsafe_allow_html=True)
+
+            with rehab_tab2:
+
+                # patient_nutri_data_calendar = patient_data_calendar[patient_data_calendar['specialties_str']]
+                patient_rehab_data_calendar = patient_data_calendar[patient_data_calendar['specialties_str']==rehab_record_id_calendar]
+                selected_rehab_columns = ['Start','recommendations']
+                rehab_filtered_data_calendar = patient_rehab_data_calendar[selected_rehab_columns]
+                rehab_filtered_data_calendar = rehab_filtered_data_calendar[
+                        (rehab_filtered_data_calendar['recommendations'] != '') & (rehab_filtered_data_calendar['recommendations'].notna())
+                    ]
+
+                rehab_filtered_data_calendar['Start'] = pd.to_datetime(rehab_filtered_data_calendar['Start']).dt.strftime('%d-%b-%Y')
+                
+
+                rehab_filtered_data_calendar.columns = ['Fecha', 'Resumen de cita']  # Change to your desired names 
+                rehab_filtered_data_calendar['Resumen de cita'] = rehab_filtered_data_calendar['Resumen de cita'].str.replace('\n', '<br>', regex=False)
+                rehab_table_cal = rehab_filtered_data_calendar.to_html(escape=False, index=False)
+
+                # Reset the index to avoid displaying it
+                st.markdown(rehab_table_cal, unsafe_allow_html=True)
+                
+            with rehab_tab3:
+
+                selected_rehab_columns_file = ['name_rehab_manuals','file_rehab_manuals']
+                rehab_filtered_data_file = patient_rehab_data[selected_rehab_columns_file]
+
+                rehab_filtered_data_file = rehab_filtered_data_file[
+                        (rehab_filtered_data_file['file_rehab_manuals'] != '') & (rehab_filtered_data_file['file_rehab_manuals'].notna())
+                    ]
+                
+                # Display files in Streamlit
+                if not rehab_filtered_data_file.empty:
+                    st.write("Archivos disponibles:")
+                    for index, row in rehab_filtered_data_file.iterrows():
+                        file_names = row['name_rehab_manuals']  # Split the names
+                        file_urls = row['file_rehab_manuals']  # Directly access the file URL
+                        if isinstance(file_urls, list):  # Check if file_urls is a list
+                            for file_name, file_url in zip(file_names, file_urls):
+                                if file_url:  # Check if the URL is not empty
+                                    st.markdown(f"[Descargar archivo: {file_name.strip()}]({file_url['url']})")  # Create a clickable link
+                        else:
+                            if file_urls:  # Check if the URL is not empty
+                                st.markdown(f"[Descargar archivo: {file_names[0].strip()}]({file_urls['url']})")  
+
+
+        with tab4:
+            medpal_tab1, medpal_tab2, medpal_tab3 = st.tabs(["🩺 Indicaciones", "📝 Resumen de la cita", "📄 Receta"])
+            patient_medpal_data = patient_data[patient_data['specialties_str']==medpal_record_id]
+
+            with medpal_tab1:
+                selected_medpal_columns = ['real_date','full_prescription']
+                medpal_filtered_data = patient_medpal_data[selected_medpal_columns]
+
+                medpal_filtered_data = medpal_filtered_data[
+                        (medpal_filtered_data['full_prescription'] != '') & (medpal_filtered_data['full_prescription'].notna())
+                    ]
+
+                medpal_filtered_data['real_date'] = pd.to_datetime(medpal_filtered_data['real_date']).dt.strftime('%d-%b-%Y')
+                
+
+                medpal_filtered_data.columns = ['Fecha', 'Indicaciones']  # Change to your desired names 
+                medpal_filtered_data['Indicaciones'] = medpal_filtered_data['Indicaciones'].str.replace('\n', '<br>', regex=False)
+                medpal_table = medpal_filtered_data.to_html(escape=False, index=False)
+
+                # Reset the index to avoid displaying it
+                st.markdown(medpal_table, unsafe_allow_html=True)
+
+            with medpal_tab2:
+
+                # patient_nutri_data_calendar = patient_data_calendar[patient_data_calendar['specialties_str']]
+                patient_medpal_data_calendar = patient_data_calendar[patient_data_calendar['specialties_str']==medpal_record_id_calendar]
+                selected_medpal_columns = ['Start','recommendations']
+                medpal_filtered_data_calendar = patient_medpal_data_calendar[selected_medpal_columns]
+                medpal_filtered_data_calendar = medpal_filtered_data_calendar[
+                        (medpal_filtered_data_calendar['recommendations'] != '') & (medpal_filtered_data_calendar['recommendations'].notna())
+                    ]
+
+                medpal_filtered_data_calendar['Start'] = pd.to_datetime(medpal_filtered_data_calendar['Start']).dt.strftime('%d-%b-%Y')
+                
+
+                medpal_filtered_data_calendar.columns = ['Fecha', 'Resumen de cita']  # Change to your desired names 
+                medpal_filtered_data_calendar['Resumen de cita'] = medpal_filtered_data_calendar['Resumen de cita'].str.replace('\n', '<br>', regex=False)
+                medpal_table_cal = medpal_filtered_data_calendar.to_html(escape=False, index=False)
+
+                # Reset the index to avoid displaying it
+                st.markdown(medpal_table_cal, unsafe_allow_html=True)
+                
+            with medpal_tab3:
+
+                selected_medpal_columns_file = ['real_date','doc_receta']
+                medpal_filtered_data_file = patient_medpal_data[selected_medpal_columns_file]
+
+                medpal_filtered_data_file = medpal_filtered_data_file[
+                        (medpal_filtered_data_file['doc_receta'] != '') & (medpal_filtered_data_file['doc_receta'].notna())
+                    ]
+                
+                # Display files in Streamlit
+                if not medpal_filtered_data_file.empty:
+                    st.write("Archivos disponibles:")
+                    for index, row in medpal_filtered_data_file.iterrows():
+                        file_dates = row['real_date']  # Split the names
+                        file_urls = row['doc_receta']  # Directly access the file URL
+                        for file_date, file_url in zip(file_dates, file_urls):
+                                st.markdown(f"[Descargar receta médica: {file_dates}]({file_url['url']})")  # Create a clickable link
+
+
+        with tab1:
 
             option = st.selectbox("Elige el taller:", ["Yoga 🧘‍♀️", "Meditación 🧘‍♀️"])
             if option == "Yoga 🧘‍♀️":
