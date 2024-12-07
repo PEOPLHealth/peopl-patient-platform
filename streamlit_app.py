@@ -5,8 +5,6 @@ import pandas as pd
 import requests
 import plotly.graph_objects as go
 
-
-# Configuración de la página
 st.set_page_config(
     page_title='PEOPL',
     page_icon=':hospital:',
