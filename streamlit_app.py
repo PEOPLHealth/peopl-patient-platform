@@ -84,7 +84,7 @@ data_estado_general['first_name_str']=data_estado_general['first_name'].apply(la
 params = st.query_params
 record_id = params.get('recordID', [None])  # Obtiene el recordID desde la URL
 
-# record_id = "recyvxlvZVLoDyEFX"
+# record_id = "recsUfePSQeHgqVG2"
 
 # Validar si hay datos disponibles
 if data_estado_general.empty:
@@ -198,13 +198,22 @@ else:
                     for index, row in combined_nutri_data_files.iterrows():
                         file_names = row['manual_name']  # Split the names
                         file_urls = row['file_nutri_manuals']  # Directly access the file URL
-                        if isinstance(file_urls, list):  # Check if file_urls is a list
+
+                        # Check if file_urls is a list
+                        if isinstance(file_urls, list):
                             for file_name, file_url in zip(file_names, file_urls):
-                                if file_url:  # Check if the URL is not empty
+                                if isinstance(file_url, dict) and 'url' in file_url:  # Check if file_url is a dict and has 'url'
                                     st.markdown(f"[Descargar archivo: {file_name.strip()}]({file_url['url']})")  # Create a clickable link
-                        else:
-                            if file_urls:  # Check if the URL is not empty
-                                st.markdown(f"[Descargar archivo: {file_names[0].strip()}]({file_urls['url']})")  
+                        elif isinstance(file_urls, dict) and 'url' in file_urls:  # Check if file_urls is a dict
+                            st.markdown(f"[Descargar archivo: {file_names.strip()}]({file_urls['url']})")  # Create a clickable link
+
+                        #if isinstance(file_urls, list):  # Check if file_urls is a list
+                        #    for file_name, file_url in zip(file_names, file_urls):
+                        #        if file_url:  # Check if the URL is not empty
+                        #            st.markdown(f"[Descargar archivo: {file_name.strip()}]({file_url['url']})")  # Create a clickable link
+                        #else:
+                        #    if file_urls:  # Check if the URL is not empty
+                        #        st.markdown(f"[Descargar archivo: {file_names[0].strip()}]({file_urls['url']})")  
 
 
         with tab3:
