@@ -75,6 +75,7 @@ data_calendar['recordID_str']=data_calendar['recordID_patient'].apply(lambda x: 
 data_calendar['specialties_str']=data_calendar['specialty_id'].apply(lambda x: str(x[0]) if isinstance(x, list) and len(x) > 0 else str(x))
 
 data_juntas['recordID_str']=data_juntas['recordID (from full_name)'].apply(lambda x: str(x[0]) if isinstance(x, list) and len(x) > 0 else str(x))
+data_juntas['specialty_str']=data_juntas['specialty_id'].apply(lambda x: str(x[0]) if isinstance(x, list) and len(x) > 0 else str(x))
 
 data_estado_general['recordID_str']=data_estado_general['recordID_patient'].apply(lambda x: str(x[0]) if isinstance(x, list) and len(x) > 0 else str(x))
 data_estado_general['first_name_str']=data_estado_general['first_name'].apply(lambda x: str(x[0]) if isinstance(x, list) and len(x) > 0 else str(x))
@@ -83,7 +84,7 @@ data_estado_general['first_name_str']=data_estado_general['first_name'].apply(la
 params = st.query_params
 record_id = params.get('recordID', [None])  # Obtiene el recordID desde la URL
 
-# record_id = "recjWwhBSgkzXmZo0"
+# record_id = "recyvxlvZVLoDyEFX"
 
 # Validar si hay datos disponibles
 if data_estado_general.empty:
@@ -124,22 +125,34 @@ else:
             nu_tab1, nu_tab2, nutab3 = st.tabs(["🩺 Indicaciones", "📝 Resumen de la cita", "📄 Documentos"])
             
             patient_nutri_data = patient_data[patient_data['specialties_str']==nutri_record_id]
+            patient_nutri_juntas = patient_data_juntas[patient_data_juntas['specialty_str'] == nutri_record_id]
 
             
             with nu_tab1:
 
                 selected_nutri_columns_ind = ['last_modified_general_indications','general_indications']
+                selected_nutri_columns_ind_juntas = ['last_modified_ind','general_indications']
+
                 nutri_filtered_data_ind = patient_nutri_data[selected_nutri_columns_ind]
+                nutri_filtered_data_ind_juntas = patient_nutri_juntas[selected_nutri_columns_ind_juntas]
+
+                nutri_filtered_data_ind.columns = ['Fecha', 'Indicaciones']
+                nutri_filtered_data_ind_juntas.columns = ['Fecha', 'Indicaciones']
 
                 nutri_filtered_data_ind = nutri_filtered_data_ind[
-                        (nutri_filtered_data_ind['general_indications'] != '') & (nutri_filtered_data_ind['general_indications'].notna())
+                        (nutri_filtered_data_ind['Indicaciones'] != '') & (nutri_filtered_data_ind['Indicaciones'].notna())
                     ]
+                
+                nutri_filtered_data_ind['Fecha'] = pd.to_datetime(nutri_filtered_data_ind['Fecha']).dt.strftime('%d-%b-%Y')
+                nutri_filtered_data_ind_juntas['Fecha'] = pd.to_datetime(nutri_filtered_data_ind_juntas['Fecha']).dt.strftime('%d-%b-%Y')
 
-                nutri_filtered_data_ind['last_modified_general_indications'] = pd.to_datetime(nutri_filtered_data_ind['last_modified_general_indications']).dt.strftime('%d-%b-%Y')
+                # Join the two DataFrames
+                combined_nutri_data = pd.concat([nutri_filtered_data_ind, nutri_filtered_data_ind_juntas], ignore_index=True)
 
-                nutri_filtered_data_ind.columns = ['Fecha', 'Indicaciones']  # Change to your desired names 
-                nutri_filtered_data_ind['Indicaciones'] = nutri_filtered_data_ind['Indicaciones'].str.replace('\n', '<br>', regex=False)
-                nutri_table = nutri_filtered_data_ind.to_html(escape=False, index=False)
+
+                combined_nutri_data.columns = ['Fecha', 'Indicaciones']  # Change to your desired names 
+                combined_nutri_data['Indicaciones'] = combined_nutri_data['Indicaciones'].str.replace('\n', '<br>', regex=False)
+                nutri_table = combined_nutri_data.to_html(escape=False, index=False)
 
                 # Reset the index to avoid displaying it
                 st.markdown(nutri_table, unsafe_allow_html=True)
@@ -168,16 +181,21 @@ else:
             with nutab3:
 
                 selected_nutri_columns_file = ['manual_name','file_nutri_manuals']
+                selected_nutri_columns_file_juntas = ['manual_name','file_nutri_manuals']
+
                 nutri_filtered_data_file = patient_nutri_data[selected_nutri_columns_file]
+                nutri_filtered_data_file_juntas = patient_nutri_juntas[selected_nutri_columns_file_juntas]
 
                 nutri_filtered_data_file = nutri_filtered_data_file[
                         (nutri_filtered_data_file['file_nutri_manuals'] != '') & (nutri_filtered_data_file['file_nutri_manuals'].notna())
                     ]
                 
+                combined_nutri_data_files = pd.concat([nutri_filtered_data_file, nutri_filtered_data_file_juntas], ignore_index=True)
+
                 # Display files in Streamlit
-                if not nutri_filtered_data_file.empty:
+                if not combined_nutri_data_files.empty:
                     st.write("Archivos disponibles:")
-                    for index, row in nutri_filtered_data_file.iterrows():
+                    for index, row in combined_nutri_data_files.iterrows():
                         file_names = row['manual_name']  # Split the names
                         file_urls = row['file_nutri_manuals']  # Directly access the file URL
                         if isinstance(file_urls, list):  # Check if file_urls is a list
