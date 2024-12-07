@@ -86,7 +86,7 @@ record_id = params.get('recordID', [None])  # Obtiene el recordID desde la URL
 # record_id = "recjWwhBSgkzXmZo0"
 
 # Validar si hay datos disponibles
-if data_monitoreo.empty:
+if data_estado_general.empty:
     st.warning("No hay datos disponibles en este momento.")
 else:
     # Filtrar datos del paciente seleccionado
@@ -116,7 +116,7 @@ else:
     medpal_record_id_calendar = 'recSNxGRgkqTmKEjT'
     psico_record_id_calendar = 'recIqyN71LSHR94zL'
 
-    if patient_data.empty:
+    if patient_data_eg.empty:
         st.warning("No se encontraron registros para este paciente.")
     else:
         with tab2:
