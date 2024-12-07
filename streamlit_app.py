@@ -20,7 +20,7 @@ BASE_ID_MONITOREO = "appNKQ1erVzjQOUTa"
 BASE_ID_CALENDAR = "appmNRF046SxzA2cy"
 BASE_ID_JUNTAS = "appKFWzkcDEWlrXBE"
 
-
+TABLE_NAME_ESTADO_GENERAL = "estado_general"
 TABLE_NAME_PRECONSULTA = "forms_pre-consulta"
 TABLE_NAME_CPLATFORM = "calendar_platform"
 TABLE_NAME_RECORDINGS = "contacto@peopl.health"
@@ -60,13 +60,13 @@ def load_data(BASE_ID, TABLE_NAME, view=None):
 
 
 # Cargar datos al inicio
+data_estado_general = load_data(BASE_ID_MONITOREO,TABLE_NAME_ESTADO_GENERAL,view="streamlit")
 data_monitoreo = load_data(BASE_ID_MONITOREO,TABLE_NAME_PRECONSULTA)
 data_calendar = load_data(BASE_ID_CALENDAR,TABLE_NAME_CPLATFORM, view="streamlit - individual")
 data_recording = load_data(BASE_ID_CALENDAR,TABLE_NAME_RECORDINGS,view="Yoga&Meditacion")
 data_juntas = load_data(BASE_ID_JUNTAS,TABLE_NAME_JUNTAS,view="streamlit")
 
 data_monitoreo['recordID_str']=data_monitoreo['patient'].apply(lambda x: str(x[0]) if isinstance(x, list) and len(x) > 0 else str(x))
-data_monitoreo['first_name_str']=data_monitoreo['first_name'].apply(lambda x: str(x[0]) if isinstance(x, list) and len(x) > 0 else str(x))
 data_monitoreo['specialties_str']=data_monitoreo['specialties'].apply(lambda x: str(x[0]) if isinstance(x, list) and len(x) > 0 else str(x))
 data_monitoreo['full_prescription']=data_monitoreo['full_prescription (from prescriptions)'].apply(lambda x: str(x[0]) if isinstance(x, list) and len(x) > 0 else str(x))
 
@@ -76,6 +76,8 @@ data_calendar['specialties_str']=data_calendar['specialty_id'].apply(lambda x: s
 
 data_juntas['recordID_str']=data_juntas['recordID (from full_name)'].apply(lambda x: str(x[0]) if isinstance(x, list) and len(x) > 0 else str(x))
 
+data_estado_general['recordID_str']=data_estado_general['recordID_patient'].apply(lambda x: str(x[0]) if isinstance(x, list) and len(x) > 0 else str(x))
+data_estado_general['first_name_str']=data_estado_general['first_name'].apply(lambda x: str(x[0]) if isinstance(x, list) and len(x) > 0 else str(x))
 
 # Captura el parámetro recordID desde la URL
 params = st.query_params
@@ -91,15 +93,16 @@ else:
     patient_data = data_monitoreo[data_monitoreo['recordID_str'] == record_id]
     patient_data_calendar = data_calendar[data_calendar['recordID_str'] == record_id]
     patient_data_juntas = data_juntas[data_juntas['recordID_str'] == record_id]
+    patient_data_eg = data_estado_general[data_estado_general['recordID_str'] == record_id]
     #st.dataframe(patient_data_calendar)
 
     recording_calendar_meditacion = data_recording[data_recording['Title'] == '[PEOPL] – Taller de meditación']
     recording_calendar_yoga = data_recording[data_recording['Title'] == '[PEOPL] -Taller de yoga']
 
-    name = patient_data['first_name_str']
+    name = patient_data_eg['first_name_str']
 
     st.title("🏥 PEOPL")
-    st.write(f"Bienvenid@ {name.values[0]} a tu plataforma de seguimiento.")
+    st.write(f"Bienvenid@ {name.iloc[0]} a tu plataforma de seguimiento.")
 
     tab1, tab2, tab3, tab4, tab5 = st.tabs(["🎥 Grabación de talleres","🥙 Nutrición", "🏃🏻 Rehabilitación", "👩🏻‍⚕ Medicina Paliativa", "🧠 Psicooncología"])
 
