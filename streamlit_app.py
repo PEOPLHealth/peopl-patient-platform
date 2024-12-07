@@ -5,6 +5,7 @@ import pandas as pd
 import requests
 import plotly.graph_objects as go
 
+# Configuración de la página
 st.set_page_config(
     page_title='PEOPL',
     page_icon=':hospital:',
@@ -14,11 +15,16 @@ st.set_page_config(
 # Carga de variables de entorno
 dotenv.load_dotenv()
 AIRTABLE_API_KEY = os.getenv("AIRTABLE_API_KEY")
+
 BASE_ID_MONITOREO = "appNKQ1erVzjQOUTa"
-TABLE_NAME_PRECONSULTA = "forms_pre-consulta"
 BASE_ID_CALENDAR = "appmNRF046SxzA2cy"
+BASE_ID_JUNTAS = "appKFWzkcDEWlrXBE"
+
+
+TABLE_NAME_PRECONSULTA = "forms_pre-consulta"
 TABLE_NAME_CPLATFORM = "calendar_platform"
 TABLE_NAME_RECORDINGS = "contacto@peopl.health"
+TABLE_NAME_JUNTAS = "Attendees SesionesC"
 
 
 HEADERS = {"Authorization": f"Bearer {AIRTABLE_API_KEY}", "Content-Type": "application/json"}
@@ -57,9 +63,10 @@ def load_data(BASE_ID, TABLE_NAME, view=None):
 data_monitoreo = load_data(BASE_ID_MONITOREO,TABLE_NAME_PRECONSULTA)
 data_calendar = load_data(BASE_ID_CALENDAR,TABLE_NAME_CPLATFORM, view="streamlit - individual")
 data_recording = load_data(BASE_ID_CALENDAR,TABLE_NAME_RECORDINGS,view="Yoga&Meditacion")
-
+data_juntas = load_data(BASE_ID_JUNTAS,TABLE_NAME_JUNTAS,view="streamlit")
 
 data_monitoreo['recordID_str']=data_monitoreo['patient'].apply(lambda x: str(x[0]) if isinstance(x, list) and len(x) > 0 else str(x))
+data_monitoreo['first_name_str']=data_monitoreo['first_name'].apply(lambda x: str(x[0]) if isinstance(x, list) and len(x) > 0 else str(x))
 data_monitoreo['specialties_str']=data_monitoreo['specialties'].apply(lambda x: str(x[0]) if isinstance(x, list) and len(x) > 0 else str(x))
 data_monitoreo['full_prescription']=data_monitoreo['full_prescription (from prescriptions)'].apply(lambda x: str(x[0]) if isinstance(x, list) and len(x) > 0 else str(x))
 
@@ -67,11 +74,14 @@ data_monitoreo['full_prescription']=data_monitoreo['full_prescription (from pres
 data_calendar['recordID_str']=data_calendar['recordID_patient'].apply(lambda x: str(x[0]) if isinstance(x, list) and len(x) > 0 else str(x))
 data_calendar['specialties_str']=data_calendar['specialty_id'].apply(lambda x: str(x[0]) if isinstance(x, list) and len(x) > 0 else str(x))
 
+data_juntas['recordID_str']=data_juntas['recordID (from full_name)'].apply(lambda x: str(x[0]) if isinstance(x, list) and len(x) > 0 else str(x))
+
+
 # Captura el parámetro recordID desde la URL
 params = st.query_params
 record_id = params.get('recordID', [None])  # Obtiene el recordID desde la URL
 
-#record_id = "recjWwhBSgkzXmZo0"
+# record_id = "recjWwhBSgkzXmZo0"
 
 # Validar si hay datos disponibles
 if data_monitoreo.empty:
@@ -80,17 +90,18 @@ else:
     # Filtrar datos del paciente seleccionado
     patient_data = data_monitoreo[data_monitoreo['recordID_str'] == record_id]
     patient_data_calendar = data_calendar[data_calendar['recordID_str'] == record_id]
+    patient_data_juntas = data_juntas[data_juntas['recordID_str'] == record_id]
     #st.dataframe(patient_data_calendar)
 
     recording_calendar_meditacion = data_recording[data_recording['Title'] == '[PEOPL] – Taller de meditación']
     recording_calendar_yoga = data_recording[data_recording['Title'] == '[PEOPL] -Taller de yoga']
 
-    name = patient_data['first_name'].iloc[0]
+    name = patient_data['first_name_str']
 
     st.title("🏥 PEOPL")
-    st.write(f"Bienvenid@ {name[0]} a tu plataforma de seguimiento.")
+    st.write(f"Bienvenid@ {name.values[0]} a tu plataforma de seguimiento.")
 
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(["🎥 Grabación de talleres","🥙 Nutrición", "Rehabilitación", "Medicina Paliativa", "Psicooncología"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["🎥 Grabación de talleres","🥙 Nutrición", "🏃🏻 Rehabilitación", "👩🏻‍⚕ Medicina Paliativa", "🧠 Psicooncología"])
 
     nutri_record_id = 'rec9nx9loAzt8nWgn'
     rehab_record_id = 'recT9fqaCSFmAdYQZ'
@@ -346,6 +357,3 @@ else:
                     use_container_width=True,
                     hide_index=True
                 )
-
-
-
