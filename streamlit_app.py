@@ -7,11 +7,25 @@ import plotly.graph_objects as go
 
 # Configuración de la página
 st.set_page_config(
-    page_title='PEOPL',
-    page_icon=':hospital:',
+    page_title='Plataforma PEOPL',
+    page_icon='https://i.postimg.cc/tRvZtXHB/logo-1.png',
     layout="wide"
 )
-
+st.markdown(
+    """
+    <style>
+    .top-right {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+    </style>
+    <div class="top-right">
+        <img src="https://i.postimg.cc/tRvZtXHB/logo-1.png" width="150">
+    </div>
+    """,
+    unsafe_allow_html=True
+)    
 # Carga de variables de entorno
 dotenv.load_dotenv()
 AIRTABLE_API_KEY = os.getenv("AIRTABLE_API_KEY")
@@ -101,9 +115,34 @@ else:
     recording_calendar_yoga = data_recording[data_recording['Title'] == '[PEOPL] -Taller de yoga']
 
     name = patient_data_eg['first_name_str']
+    name = name.iloc[0]
 
-    st.title("🏥 PEOPL")
-    st.write(f"Bienvenid@ {name.iloc[0]} a tu plataforma de seguimiento.")
+    st.title("🏥 Plataforma")
+
+    col1, col2 = st.columns([1,8])
+    with col1:
+        st.image('https://i.ibb.co/LJ1GZPh/Disen-o-sin-ti-tulo-4.png',width=100)
+    with col2:
+        st.markdown(
+            f"""
+            <style>
+            .message-bubble {{
+                display: inline-block;
+                padding: 10px;
+                margin: 10px;
+                border-radius: 15px;
+                background-color: #f0f0f0; /* Light gray background */
+                border: 1px solid #ccc; /* Light gray border */
+                max-width: 300px; /* Maximum width of the bubble */
+                box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            }}
+            </style>
+            <div class="message-bubble">
+                Bienvenid@ {name} a tu plataforma de seguimiento 😊
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
     link = 'https://patient-indicators.streamlit.app/?recordID='+record_id
     st.write("Para visualizar tus indicadores clínicos revisa en la siguiente liga:",f"[Indicadores]({link})")
