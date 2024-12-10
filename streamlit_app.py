@@ -118,8 +118,6 @@ else:
     name = patient_data_eg['first_name_str']
     name = name.iloc[0]
 
-    st.title("🏥")
-
     st.markdown(
         f"""
         <div style="display: flex; align-items: center;">
