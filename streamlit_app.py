@@ -23,6 +23,7 @@ BASE_ID_JUNTAS = "appKFWzkcDEWlrXBE"
 TABLE_NAME_ESTADO_GENERAL = "estado_general"
 TABLE_NAME_PRECONSULTA = "forms_pre-consulta"
 TABLE_NAME_CPLATFORM = "calendar_platform"
+TABLE_NAME_RECOMMENDATIONS = "recommendations"
 TABLE_NAME_RECORDINGS = "contacto@peopl.health"
 TABLE_NAME_JUNTAS = "Attendees SesionesC"
 
@@ -62,7 +63,7 @@ def load_data(BASE_ID, TABLE_NAME, view=None):
 # Cargar datos al inicio
 data_estado_general = load_data(BASE_ID_MONITOREO,TABLE_NAME_ESTADO_GENERAL,view="streamlit")
 data_monitoreo = load_data(BASE_ID_MONITOREO,TABLE_NAME_PRECONSULTA)
-data_calendar = load_data(BASE_ID_CALENDAR,TABLE_NAME_CPLATFORM, view="streamlit - individual")
+data_calendar = load_data(BASE_ID_CALENDAR,TABLE_NAME_RECOMMENDATIONS)
 data_recording = load_data(BASE_ID_CALENDAR,TABLE_NAME_RECORDINGS,view="Yoga&Meditacion")
 data_juntas = load_data(BASE_ID_JUNTAS,TABLE_NAME_JUNTAS,view="streamlit")
 
@@ -73,6 +74,7 @@ data_monitoreo['full_prescription']=data_monitoreo['full_prescription (from pres
 
 data_calendar['recordID_str']=data_calendar['recordID_patient'].apply(lambda x: str(x[0]) if isinstance(x, list) and len(x) > 0 else str(x))
 data_calendar['specialties_str']=data_calendar['specialty_id'].apply(lambda x: str(x[0]) if isinstance(x, list) and len(x) > 0 else str(x))
+data_calendar['start_str']=data_calendar['start'].apply(lambda x: str(x[0]) if isinstance(x, list) and len(x) > 0 else str(x))
 
 data_juntas['recordID_str']=data_juntas['recordID (from full_name)'].apply(lambda x: str(x[0]) if isinstance(x, list) and len(x) > 0 else str(x))
 data_juntas['specialty_str']=data_juntas['specialty_id'].apply(lambda x: str(x[0]) if isinstance(x, list) and len(x) > 0 else str(x))
@@ -83,8 +85,6 @@ data_estado_general['first_name_str']=data_estado_general['first_name'].apply(la
 # Captura el parámetro recordID desde la URL
 params = st.query_params
 record_id = params.get('recordID', [None])  # Obtiene el recordID desde la URL
-
-# record_id = "recsUfePSQeHgqVG2"
 
 # Validar si hay datos disponibles
 if data_estado_general.empty:
@@ -161,15 +161,15 @@ else:
 
                 # patient_nutri_data_calendar = patient_data_calendar[patient_data_calendar['specialties_str']]
                 patient_nutri_data_calendar = patient_data_calendar[patient_data_calendar['specialties_str']==nutri_record_id_calendar]
-                selected_nutri_columns = ['Start','recommendations']
+                selected_nutri_columns = ['start_str','recommendations']
                 nutri_filtered_data_calendar = patient_nutri_data_calendar[selected_nutri_columns]
                 nutri_filtered_data_calendar = nutri_filtered_data_calendar[
                         (nutri_filtered_data_calendar['recommendations'] != '') & (nutri_filtered_data_calendar['recommendations'].notna())
                     ]
 
-                nutri_filtered_data_calendar['Start'] = pd.to_datetime(nutri_filtered_data_calendar['Start']).dt.date
+                nutri_filtered_data_calendar['start_str'] = pd.to_datetime(nutri_filtered_data_calendar['start_str']).dt.date
                 
-                nutri_filtered_data_calendar['Start'] = pd.to_datetime(nutri_filtered_data_calendar['Start']).dt.strftime('%d-%b-%Y')
+                nutri_filtered_data_calendar['start_str'] = pd.to_datetime(nutri_filtered_data_calendar['start_str']).dt.strftime('%d-%b-%Y')
 
                 nutri_filtered_data_calendar.columns = ['Fecha', 'Resumen de cita']  # Change to your desired names 
                 nutri_filtered_data_calendar['Resumen de cita'] = nutri_filtered_data_calendar['Resumen de cita'].str.replace('\n', '<br>', regex=False)
@@ -243,13 +243,13 @@ else:
 
                 # patient_nutri_data_calendar = patient_data_calendar[patient_data_calendar['specialties_str']]
                 patient_rehab_data_calendar = patient_data_calendar[patient_data_calendar['specialties_str']==rehab_record_id_calendar]
-                selected_rehab_columns = ['Start','recommendations']
+                selected_rehab_columns = ['start_str','recommendations']
                 rehab_filtered_data_calendar = patient_rehab_data_calendar[selected_rehab_columns]
                 rehab_filtered_data_calendar = rehab_filtered_data_calendar[
                         (rehab_filtered_data_calendar['recommendations'] != '') & (rehab_filtered_data_calendar['recommendations'].notna())
                     ]
 
-                rehab_filtered_data_calendar['Start'] = pd.to_datetime(rehab_filtered_data_calendar['Start']).dt.strftime('%d-%b-%Y')
+                rehab_filtered_data_calendar['start_str'] = pd.to_datetime(rehab_filtered_data_calendar['start_str']).dt.strftime('%d-%b-%Y')
                 
 
                 rehab_filtered_data_calendar.columns = ['Fecha', 'Resumen de cita']  # Change to your desired names 
@@ -309,13 +309,13 @@ else:
 
                 # patient_nutri_data_calendar = patient_data_calendar[patient_data_calendar['specialties_str']]
                 patient_medpal_data_calendar = patient_data_calendar[patient_data_calendar['specialties_str']==medpal_record_id_calendar]
-                selected_medpal_columns = ['Start','recommendations']
+                selected_medpal_columns = ['start_str','recommendations']
                 medpal_filtered_data_calendar = patient_medpal_data_calendar[selected_medpal_columns]
                 medpal_filtered_data_calendar = medpal_filtered_data_calendar[
                         (medpal_filtered_data_calendar['recommendations'] != '') & (medpal_filtered_data_calendar['recommendations'].notna())
                     ]
 
-                medpal_filtered_data_calendar['Start'] = pd.to_datetime(medpal_filtered_data_calendar['Start']).dt.strftime('%d-%b-%Y')
+                medpal_filtered_data_calendar['start_str'] = pd.to_datetime(medpal_filtered_data_calendar['start_str']).dt.strftime('%d-%b-%Y')
                 
 
                 medpal_filtered_data_calendar.columns = ['Fecha', 'Resumen de cita']  # Change to your desired names 
