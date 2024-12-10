@@ -121,7 +121,7 @@ else:
 
     col1, col2 = st.columns([1,8])
     with col1:
-        st.image('https://i.ibb.co/LJ1GZPh/Disen-o-sin-ti-tulo-4.png',width=100)
+        st.image('https://i.ibb.co/LJ1GZPh/Disen-o-sin-ti-tulo-4.png',width=90)
     with col2:
         st.markdown(
             f"""
@@ -129,7 +129,7 @@ else:
             .message-bubble {{
                 display: inline-block;
                 padding: 10px;
-                margin: 10px;
+                margin: 5px;
                 border-radius: 15px;
                 background-color: #f0f0f0; /* Light gray background */
                 border: 1px solid #ccc; /* Light gray border */
