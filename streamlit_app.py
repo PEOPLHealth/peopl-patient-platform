@@ -105,6 +105,10 @@ else:
     st.title("🏥 PEOPL")
     st.write(f"Bienvenid@ {name.iloc[0]} a tu plataforma de seguimiento.")
 
+    link = 'https://patient-indicators.streamlit.app/?recordID='+record_id
+    st.write("Para visualizar tus indicadores clínicos revisa en la siguiente liga:",f"[Indicadores]({link})")
+
+
     tab1, tab2, tab3, tab4, tab5 = st.tabs(["🎥 Grabación de talleres","🥙 Nutrición", "🏃🏻 Rehabilitación", "👩🏻‍⚕ Medicina Paliativa", "🧠 Psicooncología"])
 
     nutri_record_id = 'rec9nx9loAzt8nWgn'
