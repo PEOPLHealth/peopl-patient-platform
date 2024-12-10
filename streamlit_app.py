@@ -133,7 +133,7 @@ else:
                 border-radius: 15px;
                 background-color: #f0f0f0; /* Light gray background */
                 border: 1px solid #ccc; /* Light gray border */
-                max-width: 220px; /* Maximum width of the bubble */
+                max-width: 200px; /* Maximum width of the bubble */
                 box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
             }}
             </style>
