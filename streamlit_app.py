@@ -16,7 +16,7 @@ st.markdown(
     <style>
     .top-right {
         position: absolute;
-        top: 10px;
+        top: 3px;
         right: 10px;
     }
     </style>
@@ -117,7 +117,7 @@ else:
     name = patient_data_eg['first_name_str']
     name = name.iloc[0]
 
-    st.title("🏥 Plataforma")
+    st.title("🏥")
 
     col1, col2 = st.columns([1,8])
     with col1:
@@ -133,7 +133,7 @@ else:
                 border-radius: 15px;
                 background-color: #f0f0f0; /* Light gray background */
                 border: 1px solid #ccc; /* Light gray border */
-                max-width: 300px; /* Maximum width of the bubble */
+                max-width: 220px; /* Maximum width of the bubble */
                 box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
             }}
             </style>
