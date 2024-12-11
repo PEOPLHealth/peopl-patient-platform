@@ -78,6 +78,7 @@ def load_data(BASE_ID, TABLE_NAME, view=None):
 data_estado_general = load_data(BASE_ID_MONITOREO,TABLE_NAME_ESTADO_GENERAL,view="streamlit")
 data_monitoreo = load_data(BASE_ID_MONITOREO,TABLE_NAME_PRECONSULTA)
 data_calendar = load_data(BASE_ID_CALENDAR,TABLE_NAME_RECOMMENDATIONS)
+data_calendar_ns = load_data(BASE_ID_CALENDAR,TABLE_NAME_CPLATFORM, view="streamlit - next sessions")
 data_recording = load_data(BASE_ID_CALENDAR,TABLE_NAME_RECORDINGS,view="Yoga&Meditacion")
 data_juntas = load_data(BASE_ID_JUNTAS,TABLE_NAME_JUNTAS,view="streamlit")
 
@@ -96,10 +97,11 @@ data_juntas['specialty_str']=data_juntas['specialty_id'].apply(lambda x: str(x[0
 data_estado_general['recordID_str']=data_estado_general['recordID_patient'].apply(lambda x: str(x[0]) if isinstance(x, list) and len(x) > 0 else str(x))
 data_estado_general['first_name_str']=data_estado_general['first_name'].apply(lambda x: str(x[0]) if isinstance(x, list) and len(x) > 0 else str(x))
 
+data_calendar_ns['recordID_str'] = data_calendar_ns['recordID_patient'].apply(lambda x: ', '.join(map(str, x)) if isinstance(x, list) and len(x) > 0 else str(x))
+
 # Captura el parámetro recordID desde la URL
 params = st.query_params
 record_id = params.get('recordID', [None])  # Obtiene el recordID desde la URL
-
 
 # Validar si hay datos disponibles
 if data_estado_general.empty:
@@ -108,6 +110,7 @@ else:
     # Filtrar datos del paciente seleccionado
     patient_data = data_monitoreo[data_monitoreo['recordID_str'] == record_id]
     patient_data_calendar = data_calendar[data_calendar['recordID_str'] == record_id]
+    patient_data_calendar_ns = data_calendar_ns[data_calendar_ns['recordID_str'].str.contains(record_id, na=False)]
     patient_data_juntas = data_juntas[data_juntas['recordID_str'] == record_id]
     patient_data_eg = data_estado_general[data_estado_general['recordID_str'] == record_id]
     #st.dataframe(patient_data_calendar)
@@ -124,7 +127,7 @@ else:
             <div style="margin-right: 10px;">  <!-- Espacio entre la imagen y la burbuja -->
                 <img src="https://i.ibb.co/LJ1GZPh/Disen-o-sin-ti-tulo-4.png" width="100">
             </div>
-            <div class="message-bubble" style="display: inline-block; padding: 10px; margin: 10px; border-radius: 15px; background-color: #f0f0f0; border: 1px solid #ccc; max-width: 200px; box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); color: black;">
+            <div class="message-bubble" style="display: inline-block; padding: 10px; margin: 10px; border-radius: 15px; background-color: #f0f0f0; border: 1px solid #ccc; max-width: 300px; box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); color: black;">
                 Bienvenid@ {name} a tu plataforma de seguimiento 😊
             </div>
         </div>
@@ -132,11 +135,12 @@ else:
         unsafe_allow_html=True
     )
 
+    st.write('')
     link = 'https://patient-indicators.streamlit.app/?recordID='+record_id
-    st.write("Para visualizar tus indicadores clínicos revisa en la siguiente liga:",f"[Indicadores]({link})")
+    st.write("Para visualizar tus indicadores clínicos revisa en la siguiente liga:",f"[Indicadores Clínicos 📊]({link})")
 
 
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(["🎥 Grabación de talleres","🥙 Nutrición", "🏃🏻 Rehabilitación", "👩🏻‍⚕ Medicina Paliativa", "🧠 Psicooncología"])
+    tabp, tab1, tab2, tab3, tab4, tab5 = st.tabs(["Resumen", "🎥 Grabación de talleres","🥙 Nutrición", "🏃🏻 Rehabilitación", "👩🏻‍⚕ Medicina Paliativa", "🧠 Psicooncología"])
 
     nutri_record_id = 'rec9nx9loAzt8nWgn'
     rehab_record_id = 'recT9fqaCSFmAdYQZ'
@@ -151,6 +155,34 @@ else:
     if patient_data_eg.empty:
         st.warning("No se encontraron registros para este paciente.")
     else:
+        with tabp:
+            program = patient_data_eg['Program'].apply(lambda x: str(x[0]) if isinstance(x, list) and len(x) > 0 else str(x))
+            due_date = patient_data_eg['next_due_date']
+            days_to_due_date = patient_data_eg['days_to_due_date']
+            st.write(f'Tienes activo el plan **{program.iloc[0]}** 💙. Con este programa, cada mes tienes acceso a:')
+
+            if (program.iloc[0]=='Vive Bien'):
+                st.write('* 👩🏻‍⚕️ 2 citas individuales')
+                st.write('* 👥 Sesiones colectivas y talleres ilimitados')
+            elif (program.iloc[0]=='Juntas'):
+                st.write('* 👥 Sesiones colectivas y talleres ilimitados')
+            elif (program.iloc[0]=='Contigo'):
+                st.write('* 👥 Sesiones colectivas quincenales y talleres semanales')
+
+            st.markdown("<hr>", unsafe_allow_html=True)
+
+            st.write('Tus próximas sesiones 🗓️:')
+            patient_data_calendar_ns.rename(columns={'title_streamlit': 'Cita médica', 'Start': 'Fecha y hora'}, inplace=True)  # Cambiar el nombre de la columna
+            patient_data_calendar_ns['Fecha y hora'] = pd.to_datetime(patient_data_calendar_ns['Fecha y hora']).dt.tz_convert('UTC').dt.tz_convert('America/Mexico_City').dt.strftime('%d/%m/%Y %H:%M')
+
+            st.write(patient_data_calendar_ns[['Cita médica','Fecha y hora']])
+
+            st.markdown("<hr>", unsafe_allow_html=True)
+
+            st.write(f'**Fecha próxima de pago:** {due_date.iloc[0]}, en {days_to_due_date.iloc[0]} días')
+
+
+
         with tab2:
 
             nu_tab1, nu_tab2, nutab3 = st.tabs(["🩺 Indicaciones", "📝 Resumen de la cita", "📄 Documentos"])
