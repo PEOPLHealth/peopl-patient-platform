@@ -124,7 +124,7 @@ else:
             <div style="margin-right: 10px;">  <!-- Espacio entre la imagen y la burbuja -->
                 <img src="https://i.ibb.co/LJ1GZPh/Disen-o-sin-ti-tulo-4.png" width="100">
             </div>
-            <div class="message-bubble" style="display: inline-block; padding: 10px; margin: 10px; border-radius: 15px; background-color: #f0f0f0; border: 1px solid #ccc; max-width: 200px; box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);">
+            <div class="message-bubble" style="display: inline-block; padding: 10px; margin: 10px; border-radius: 15px; background-color: #f0f0f0; border: 1px solid #ccc; max-width: 200px; box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); color: black;">
                 Bienvenid@ {name} a tu plataforma de seguimiento 😊
             </div>
         </div>
