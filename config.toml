@@ -1,0 +1,7 @@
+[theme]
+primaryColor = "#4CAF50"  # Color principal
+backgroundColor = "#F0F0F0"  # Fondo
+secondaryBackgroundColor = "#FFFFFF"  # Fondo secundario
+textColor = "#000000"  # Color del texto
+font = "sans serif"  # Fuente
+base="light"  # Establece el tema base en claro
