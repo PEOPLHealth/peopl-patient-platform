@@ -173,7 +173,7 @@ else:
 
             st.write('Tus próximas sesiones 🗓️:')
             patient_data_calendar_ns.rename(columns={'title_streamlit': 'Cita médica', 'Start': 'Fecha y hora'}, inplace=True)  # Cambiar el nombre de la columna
-            patient_data_calendar_ns['Fecha y hora'] = pd.to_datetime(patient_data_calendar_ns['Fecha y hora']).dt.tz_convert('UTC').dt.tz_convert('America/Mexico_City').dt.strftime('%d/%m/%Y %H:%M')
+            patient_data_calendar_ns['Fecha y hora'] = pd.to_datetime(patient_data_calendar_ns['Fecha y hora']).dt.tz_localize('UTC').dt.tz_convert('America/Mexico_City').dt.strftime('%d/%m/%Y %H:%M')
 
             st.write(patient_data_calendar_ns[['Cita médica','Fecha y hora']])
 
