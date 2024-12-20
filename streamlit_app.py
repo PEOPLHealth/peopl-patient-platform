@@ -182,7 +182,7 @@ else:
                     patient_data_calendar_ns['Fecha y hora'] = patient_data_calendar_ns['Fecha y hora'].dt.tz_localize('UTC')
                 patient_data_calendar_ns['Fecha y hora'] = patient_data_calendar_ns['Fecha y hora'].dt.tz_convert('America/Mexico_City').dt.strftime('%d/%m/%Y %H:%M')
 
-            st.write(patient_data_calendar_ns[['Cita médica','Fecha y hora']])
+                st.write(patient_data_calendar_ns[['Cita médica','Fecha y hora']])
 
             st.markdown("<hr>", unsafe_allow_html=True)
 
