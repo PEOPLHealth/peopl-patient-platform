@@ -163,15 +163,34 @@ else:
 
             if (program.iloc[0]=='Vive Bien'):
                 st.write('* 👩🏻‍⚕️ 2 citas individuales')
-                st.write('* 👥 Sesiones colectivas y talleres ilimitados')
+                st.markdown("""
+                - 👥 Sesiones colectivas y talleres ilimitados
+                    - Sesiones colectivas de nutrición, rehabilitación, psicooncología, etc.
+                    - Talleres:
+                        - 🧘‍♂️ **Meditación**: Cada **lunes** a las 🕣 **8:30 PM**.
+                        - 🧘‍♀️ **Yoga**: Cada **viernes** a las 🕗 **8:00 PM**.
+                """)
+
             elif (program.iloc[0]=='Juntas'):
-                st.write('* 👥 Sesiones colectivas y talleres ilimitados')
+                st.markdown("""
+                - 👥 Sesiones colectivas y talleres ilimitados
+                    - Sesiones colectivas de nutrición, rehabilitación, psicooncología, etc.
+                    - Talleres:
+                        - 🧘‍♂️ **Meditación**: Cada **lunes** a las 🕣 **8:30 PM**.
+                        - 🧘‍♀️ **Yoga**: Cada **viernes** a las 🕗 **8:00 PM**.
+                """)
             elif (program.iloc[0]=='Contigo'):
-                st.write('* 👥 Sesiones colectivas quincenales y talleres semanales')
+                st.markdown("""
+                - 👥 Sesiones colectivas quincenales y talleres semanales
+                    - Sesiones colectivas de nutrición, rehabilitación, psicooncología, etc.
+                    - Talleres:
+                        - 🧘‍♂️ **Meditación**: Cada **lunes** a las 🕣 **8:30 PM**.
+                        - 🧘‍♀️ **Yoga**: Cada **viernes** a las 🕗 **8:00 PM**.
+                """)
 
             st.markdown("<hr>", unsafe_allow_html=True)
 
-            st.write('Tus próximas sesiones 🗓️:')
+            st.markdown('#### Tus próximas sesiones 🗓️:')
             if patient_data_calendar_ns.empty:
                 st.write("No hay futuras citas agendadas.")
             else:
